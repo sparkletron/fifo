@@ -1,0 +1,43 @@
+CAPI=2:
+
+name: AFRL:buffer:fifo:1.0.0
+description: A standard dual clock fifo that mimicks the Xilinx FIFO behavior (v2018.3).
+
+filesets:
+  src:
+    files:
+      - src/fifo.v
+      - src/fifo_ctrl.v
+      - src/fifo_mem.v
+      - src/fifo_pipe.v
+    file_type: verilogSource
+  
+  tb:
+    files:
+      - tb/tb_fifo.v : { file_type: verilogSource }
+      - tb/in.bin    : { file_type: user, copyto: in.bin }
+
+  dep:
+    depend:
+      - AFRL:utility:helper:1.0.0
+      
+  dep_tb:
+    depend:
+      - AFRL:simulation:fifo_stimulator
+      - AFRL:simulation:clock_stimulator
+    
+  vivado_constr:
+    files:
+      - constr/fifo_constr.xdc
+    file_type: xdc
+    
+targets:
+  default: &default
+    filesets: [src, dep]
+  
+  sim:
+    <<: *default
+    default_tool: icarus
+    filesets_append: [tb, dep_tb]
+    toplevel: tb_fifo
+    
