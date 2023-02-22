@@ -67,6 +67,10 @@ module fifo_ctrl #(
   localparam idle = 2'd0;
   localparam push = 2'd1;
   localparam ready= 2'd2;
+  
+  //mask to deal with negative issues in some sims and synth
+  localparam DATA_MASK = {ADDR_WIDTH{1'b1}};
+  
   reg [1:0] read_state;
   
   // Primary head and tail pointer (reg is unsigned in verilog, integer signed).
@@ -129,7 +133,7 @@ module fifo_ctrl #(
   assign rd_mem_en = ((r_tail == rd_head) ? 0 : ((rd_ctrl_mem | rd_en) & r_rd_rstn));
   
   // when full, do not allow any write signals
-  assign wr_mem_en = ((wr_tail-1 == r_head) ? 0 : (wr_en & r_wr_rstn));
+  assign wr_mem_en = (((wr_tail-1 & DATA_MASK) == r_head) ? 0 : (wr_en & r_wr_rstn));
   
   // read address gets the current tail OR a grey code version of it.
   assign rd_addr = ((GREY_CODE == 0) ? r_tail : r_gr_tail);
@@ -141,7 +145,7 @@ module fifo_ctrl #(
   assign rd_empty = r_rd_empty;
   
   // output full
-  assign wr_full  = ((wr_tail-1 == r_head) ? 1'b1 : 1'b0);
+  assign wr_full  = (((wr_tail-1 & DATA_MASK) == r_head) ? 1'b1 : 1'b0);
   
   always @(*) begin
     // async head pointer addition
@@ -269,7 +273,7 @@ module fifo_ctrl #(
         r_wr_ack <= wr_en;
         
         // we are full
-        if (wr_tail-1 == r_head) begin
+        if ((wr_tail-1 & DATA_MASK) == r_head) begin
           r_wr_ack <= 1'b0;
         end
       end
@@ -348,7 +352,7 @@ module fifo_ctrl #(
       wr_tail    <= tail;
       
       // We are not full and write is enabled, register pointers.
-      if ((wr_tail-1 != r_head) && (wr_en == 1'b1)) begin
+      if (((wr_tail-1 & DATA_MASK) != r_head) && (wr_en == 1'b1)) begin
         head      <= next_head;
         r_head    <= next_head;
         r_gr_head <= next_head ^ {1'b0, next_head[ADDR_WIDTH-1:1]};
