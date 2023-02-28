@@ -44,6 +44,8 @@ module tb_fifo #(
   wire [(BYTE_WIDTH*8)-1:0] tb_stim_data;
   wire                      tb_stim_empty;
   wire                      tb_stim_ready;
+  wire                      tb_stim_eof;
+  
   wire                      tb_dut_clk;
   wire                      tb_dut_rstn;
   wire [(BYTE_WIDTH*8)-1:0] tb_dut_data;
@@ -75,7 +77,8 @@ module tb_fifo #(
     .rd_en(~tb_stim_ready),
     .rd_valid(tb_stim_valid),
     .rd_data(tb_stim_data),
-    .rd_empty(tb_stim_empty)
+    .rd_empty(tb_stim_empty),
+    .eof(tb_stim_eof)
   );
 
   // FIFO that emulates Xilinx FIFO.
@@ -124,15 +127,9 @@ module tb_fifo #(
     .wr_en(tb_dut_valid),
     .wr_ack(),
     .wr_data(tb_dut_data),
-    .wr_full(tb_dut_ready)
+    .wr_full(tb_dut_ready),
+    .eof(tb_stim_eof & tb_dut_empty)
   );
-  
-  // this is crap, that works for now
-  always @(posedge tb_dut_empty) begin
-    if(tb_dut_empty & tb_stim_empty & !tb_dut_valid & tb_stim_rstn & tb_dut_rstn) begin
-      $finish();
-    end
-  end
   
   // vcd dump command
   initial begin

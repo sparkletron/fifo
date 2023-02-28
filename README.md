@@ -1,5 +1,5 @@
 # UTIL FIFO
-## Emulates Xilinx FIFO FWFT and response
+### Emulates Xilinx FIFO FWFT and response
 ---
 
    author: Jay Convertino  
@@ -11,8 +11,6 @@
    license: MIT   
    
 ---
-
-![rtl_img](./rtl.png)
 
 ### Dependencies
 #### Build
@@ -58,3 +56,13 @@
 
 * fusesoc_info.core created.
 * Simulation uses icarus to run data through the core.
+
+#### TARGETS
+
+* RUN WITH: (fusesoc run --target=sim VENDER:CORE:NAME:VERSION)
+  - default (for IP integration builds)
+  - sim
+  - sim_rand_data
+  - sim_rand_full_rand_data
+  - sim_8bit_count_data
+  - sim_rand_full_8bit_count_data

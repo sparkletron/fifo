@@ -28,12 +28,11 @@ filesets:
       
   vivado_constr:
     files:
-      - constr/fifo_constr.xdc
-    file_type: xdc
+      - constr/fifo_constr.xdc : { file_type: xdc }
     
 targets:
   default: &default
-    filesets: [src, dep]
+    filesets: [src, dep, "tool_vivado ? (vivado_constr)"]
     
   sim: &sim
     <<: *default
@@ -56,6 +55,14 @@ targets:
       - RAND_FULL
       - FIFO_DEPTH
       
+  sim_rand_full_rand_data:
+    <<: *sim
+    parameters:
+      - IN_FILE_NAME=random.bin
+      - OUT_FILE_NAME=out_random.bin
+      - RAND_FULL=1
+      - FIFO_DEPTH
+      
   sim_8bit_count_data:
     <<: *sim
     parameters:
@@ -63,12 +70,20 @@ targets:
       - OUT_FILE_NAME=out_8bit_count.bin
       - RAND_FULL
       - FIFO_DEPTH
+  
+  sim_rand_full_8bit_count_data:
+    <<: *sim
+    parameters:
+      - IN_FILE_NAME=8bit_count.bin
+      - OUT_FILE_NAME=out_8bit_count.bin
+      - RAND_FULL=1
+      - FIFO_DEPTH
       
 parameters:
   RAND_FULL:
     datatype    : int
     default     : 0
-    description : If set to anything other than 0, the ready signal to the DUT will be randomized.
+    description : If set to anything other than 0, the full signal to the DUT will be randomized.
     paramtype   : vlogparam
 
   FIFO_DEPTH:
