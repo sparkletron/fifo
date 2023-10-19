@@ -1,4 +1,4 @@
-# UTIL FIFO
+# FIFO
 ### Emulates Xilinx FIFO FWFT and response
 ---
 
@@ -12,6 +12,13 @@
    
 ---
 
+### Version
+#### Current
+  - V1.0.0 - initial release
+
+#### Previous
+  - none
+
 ### Dependencies
 #### Build
   - AFRL:utility:helper:1.0.0
@@ -19,6 +26,7 @@
 #### Simulation
   - AFRL:simulation:fifo_stimulator
   - AFRL:simulation:clock_stimulator
+  - AFRL:utility:sim_helper
   
 ### IP USAGE
 #### Parameters

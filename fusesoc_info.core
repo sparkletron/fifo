@@ -32,10 +32,12 @@ filesets:
     
 targets:
   default: &default
+    description: Default for IP intergration.
     filesets: [src, dep, "tool_vivado ? (vivado_constr)"]
-    
+
   sim: &sim
     <<: *default
+    description: Constant data value with file check.
     default_tool: icarus
     toplevel: tb_fifo
     hooks:
@@ -44,39 +46,34 @@ targets:
     parameters:
       - IN_FILE_NAME
       - OUT_FILE_NAME
-      - RAND_FULL
+      - RAND_READY
       - FIFO_DEPTH
-  
+
   sim_rand_data:
     <<: *sim
+    description: Feed random data input with file check
     parameters:
       - IN_FILE_NAME=random.bin
       - OUT_FILE_NAME=out_random.bin
-      - RAND_FULL
+      - RAND_READY
       - FIFO_DEPTH
-      
-  sim_rand_full_rand_data:
+
+  sim_rand_ready_rand_data:
     <<: *sim
+    description: Feed random data input, and randomize the read ready on the output. Perform output file check.
     parameters:
       - IN_FILE_NAME=random.bin
       - OUT_FILE_NAME=out_random.bin
-      - RAND_FULL=1
+      - RAND_READY=1
       - FIFO_DEPTH
-      
+
   sim_8bit_count_data:
     <<: *sim
+    description: Feed a counter data as input, perform file check.
     parameters:
       - IN_FILE_NAME=8bit_count.bin
       - OUT_FILE_NAME=out_8bit_count.bin
-      - RAND_FULL
-      - FIFO_DEPTH
-  
-  sim_rand_full_8bit_count_data:
-    <<: *sim
-    parameters:
-      - IN_FILE_NAME=8bit_count.bin
-      - OUT_FILE_NAME=out_8bit_count.bin
-      - RAND_FULL=1
+      - RAND_READY
       - FIFO_DEPTH
       
 parameters:
