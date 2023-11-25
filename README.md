@@ -14,10 +14,11 @@
 
 ### Version
 #### Current
-  - V1.0.0 - initial release
+  - V1.1.1 - readme fix
 
 #### Previous
-  - none
+  - V1.1.0 - tcl constraints
+  - V1.0.0 - initial release
 
 ### Dependencies
 #### Build
