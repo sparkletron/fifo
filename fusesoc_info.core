@@ -1,6 +1,6 @@
 CAPI=2:
 
-name: AFRL:buffer:fifo:1.1.1
+name: AFRL:buffer:fifo:1.1.2
 description: A standard dual clock fifo that mimicks the Xilinx FIFO behavior (v2018.3).
 
 filesets:
@@ -46,7 +46,7 @@ targets:
     parameters:
       - IN_FILE_NAME
       - OUT_FILE_NAME
-      - RAND_READY
+      - RAND_FULL
       - FIFO_DEPTH
 
   sim_rand_data:
@@ -55,7 +55,7 @@ targets:
     parameters:
       - IN_FILE_NAME=random.bin
       - OUT_FILE_NAME=out_random.bin
-      - RAND_READY
+      - RAND_FULL
       - FIFO_DEPTH
 
   sim_rand_ready_rand_data:
@@ -64,7 +64,7 @@ targets:
     parameters:
       - IN_FILE_NAME=random.bin
       - OUT_FILE_NAME=out_random.bin
-      - RAND_READY=1
+      - RAND_FULL=1
       - FIFO_DEPTH
 
   sim_8bit_count_data:
@@ -73,7 +73,7 @@ targets:
     parameters:
       - IN_FILE_NAME=8bit_count.bin
       - OUT_FILE_NAME=out_8bit_count.bin
-      - RAND_READY
+      - RAND_FULL
       - FIFO_DEPTH
       
 parameters:

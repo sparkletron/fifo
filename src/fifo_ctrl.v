@@ -46,7 +46,7 @@ module fifo_ctrl #(
     input rd_rstn,
     input rd_en,
     output [ADDR_WIDTH-1:0] rd_addr,
-    output reg rd_valid,
+    output rd_valid,
     output rd_mem_en,
     output rd_empty,
     // write interface
@@ -60,7 +60,7 @@ module fifo_ctrl #(
     // data count interface
     input data_count_clk,
     input data_count_rstn,
-    output reg[COUNT_WIDTH:0] data_count
+    output [COUNT_WIDTH:0] data_count
   );
 
   //state machine
@@ -128,7 +128,12 @@ module fifo_ctrl #(
   // since we push data out and count it in fwft mode. Tiny counter to add that offset.
   reg r_fwft_count = 0;
 
+  // reg rd_valid
+  reg r_rd_valid = 0;
+
   // assign data
+  assign rd_valid = r_rd_valid;
+
   // when empty, do not allow any read signals
   assign rd_mem_en = ((r_tail == rd_head) ? 0 : ((rd_ctrl_mem | rd_en) & r_rd_rstn));
   
@@ -146,8 +151,8 @@ module fifo_ctrl #(
   
   // output full
   assign wr_full  = (((wr_tail-1 & DATA_MASK) == r_head) ? 1'b1 : 1'b0);
-  
-  always @(*) begin
+
+  always @(head or tail) begin
     // async head pointer addition
     next_head <= head + 1;
     // async tail pointer addition
@@ -156,18 +161,6 @@ module fifo_ctrl #(
   
   //generate blocks
   generate
-  if(COUNT_WIDTH+1 <= ADDR_WIDTH) begin
-    always @(*) begin
-      // data count get a slice of the resulting data count.
-      data_count <= r_data_count[COUNT_WIDTH:0];
-    end
-  end else begin
-    always @(*) begin
-      // data count get a slice of the resulting data count.
-      data_count[COUNT_WIDTH:ADDR_WIDTH] <= ((r_data_count != 0) ? 0 : {{(COUNT_WIDTH-ADDR_WIDTH){1'b0}}, r_fwft_count});
-      data_count[ADDR_WIDTH-1:0] <= r_data_count;
-    end
-  end
 
   //fwft read generate block
   if (FWFT > 0) begin
@@ -175,7 +168,7 @@ module fifo_ctrl #(
     always @(posedge rd_clk) begin
       if(rd_rstn == 1'b0) begin
         read_state  <= idle;
-        rd_valid    <= 1'b0;
+        r_rd_valid  <= 1'b0;
         r_rd_empty  <= 1'b1;
         rd_ctrl_mem <= 1'b0;
         r_fwft_count<= 0;
@@ -184,7 +177,7 @@ module fifo_ctrl #(
           idle: begin
             read_state  <= idle;
             r_rd_empty  <= 1'b1;
-            rd_valid    <= 1'b0;
+            r_rd_valid  <= 1'b0;
             rd_ctrl_mem <= 1'b0;
             
             // we are not empty
@@ -197,7 +190,7 @@ module fifo_ctrl #(
             read_state <= push;
             
             r_rd_empty <= 1'b0;
-            rd_valid   <= 1'b1;
+            r_rd_valid <= 1'b1;
             rd_ctrl_mem<= 1'b0;
             r_fwft_count<= ~0;
             
@@ -208,7 +201,7 @@ module fifo_ctrl #(
                 read_state  <= idle;
                 r_fwft_count<= 0;
                 r_rd_empty  <= 1'b1;
-                rd_valid    <= 1'b0;
+                r_rd_valid  <= 1'b0;
                 rd_ctrl_mem <= 1'b0;
               end
             end
@@ -217,14 +210,14 @@ module fifo_ctrl #(
             read_state <= ready;
             
             r_rd_empty <= 1'b0;
-            rd_valid   <= 1'b1;
+            r_rd_valid   <= 1'b1;
             rd_ctrl_mem<= 1'b0;
 
             if((rd_head == r_tail) && (rd_en == 1'b1)) begin
               read_state  <= idle;
               r_fwft_count<= 0;
               r_rd_empty  <= 1'b1;
-              rd_valid    <= 1'b0;
+              r_rd_valid  <= 1'b0;
               rd_ctrl_mem <= 1'b0;
             end
           end
@@ -236,7 +229,7 @@ module fifo_ctrl #(
     always @(posedge rd_clk) begin
       if(rd_rstn == 1'b0) begin
         read_state  <= idle;
-        rd_valid    <= 1'b0;
+        r_rd_valid  <= 1'b0;
         r_rd_empty  <= 1'b1;
         rd_ctrl_mem <= 1'b0;
         r_fwft_count<= 0;
@@ -248,13 +241,13 @@ module fifo_ctrl #(
         
         // read is enabled, we do not want valid to go back to 0 unless empty.
         if (rd_en == 1'b1) begin
-          rd_valid <= 1'b1;
+          r_rd_valid <= 1'b1;
         end
         
         // we are empty
         if (rd_head == r_tail) begin
           r_rd_empty <= 1'b1;
-          rd_valid   <= 1'b0;
+          r_rd_valid <= 1'b0;
         end
       end
     end
@@ -285,6 +278,16 @@ module fifo_ctrl #(
   
   // Provide a count of data in the fifo. 
   if (COUNT_ENA > 0) begin
+
+    if(COUNT_WIDTH+1 <= ADDR_WIDTH) begin
+      // data count get a slice of the resulting data count.
+      assign data_count = r_data_count[COUNT_WIDTH:0];
+    end else begin
+      // data count get a slice of the resulting data count.
+      assign data_count[COUNT_WIDTH:ADDR_WIDTH] = ((r_data_count != 0) ? 0 : {{(COUNT_WIDTH-ADDR_WIDTH){1'b0}}, r_fwft_count});
+      assign data_count[ADDR_WIDTH-1:0] = r_data_count;
+    end
+
     if (COUNT_DELAY > 0) begin
       always @(posedge data_count_clk) begin
         if(data_count_rstn == 1'b0) begin
@@ -297,23 +300,21 @@ module fifo_ctrl #(
           r_dc_tail <= r_tail;
           r_dc_fwft_count <= r_fwft_count;
           
-          r_data_count <= (r_dc_head - r_dc_tail + r_fwft_count);
+          r_data_count <= (r_dc_head - r_dc_tail + r_dc_fwft_count);
           
           // If we wrap around, we need to offset by the depth of the fifo.
           if(r_dc_tail > r_dc_head) begin
-            r_data_count <= (r_dc_head - r_dc_tail - FIFO_DEPTH + r_fwft_count);
+            r_data_count <= (r_dc_head - r_dc_tail - FIFO_DEPTH + r_dc_fwft_count);
           end
         end
       end
     end else begin
-      always @(*) begin
+      always @(r_tail or r_head or r_fwft_count) begin
         r_data_count <= ((r_tail > r_head) ? (r_head - r_tail - FIFO_DEPTH + r_fwft_count) : (r_head - r_tail + r_fwft_count));
       end
     end
   end else begin
-    always @(*) begin
-      r_data_count <= 0;
-    end
+    assign data_count = 0;
   end
   endgenerate
   
