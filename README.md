@@ -14,9 +14,10 @@
 
 ### Version
 #### Current
-  - V1.1.2 - fix some coding grammer and delayed data_count using wrong fwft signal.
+  - V1.2.0 - change fifo_mem to dc_block_ram seperate core for reuse.
 
 #### Previous
+  - V1.1.2 - fix some coding grammer and delayed data_count using wrong fwft signal.
   - V1.1.1 - readme fix
   - V1.1.0 - tcl constraints
   - V1.0.0 - initial release

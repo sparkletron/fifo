@@ -161,12 +161,12 @@ module fifo #(
   );
 
   // Memory for storage.
-  fifo_mem #(
-    .FIFO_DEPTH(c_FIFO_DEPTH),
+  dc_block_ram #(
+    .DEPTH(c_FIFO_DEPTH),
     .BYTE_WIDTH(BYTE_WIDTH),
     .ADDR_WIDTH(c_PWR_FIFO),
     .RAM_TYPE(RAM_TYPE)
-  ) memory (
+  ) inst_dc_block_ram (
     // read output
     .rd_clk(rd_clk),
     .rd_rstn(rd_rstn),
