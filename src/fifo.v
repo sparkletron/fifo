@@ -162,7 +162,7 @@ module fifo #(
 
   // Memory for storage.
   dc_block_ram #(
-    .DEPTH(c_FIFO_DEPTH),
+    .RAM_DEPTH(c_FIFO_DEPTH),
     .BYTE_WIDTH(BYTE_WIDTH),
     .ADDR_WIDTH(c_PWR_FIFO),
     .RAM_TYPE(RAM_TYPE)
@@ -177,6 +177,7 @@ module fifo #(
     .wr_clk(wr_clk),
     .wr_rstn(wr_rstn),
     .wr_en(s_wr_mem_en),
+    .wr_ben({BYTE_WIDTH{s_wr_mem_en}}),
     .wr_data(s_wr_data),
     .wr_addr(s_wr_addr)
   );
