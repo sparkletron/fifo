@@ -25,6 +25,7 @@
 ### Dependencies
 #### Build
   - AFRL:utility:helper:1.0.0
+  - AFRL:ram:dc_block_ram:1.0.0
   
 #### Simulation
   - AFRL:simulation:fifo_stimulator
@@ -51,8 +52,6 @@
   * Controls the fifo_mem.v core based upon input signals.
   * Emulates Xilinx FIFO
   * First Word Fall Through mode for read is optional.
-* fifo_mem.v
-  * Simple dual port, dual clock RAM.
 * fifo_pipe.v
   * Adds pipelining in case of timing issues.
   * Asymetic pipeline Write/Read ability.
