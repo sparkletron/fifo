@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("ins",["Module"],[["inst_dc_block_ram",,[[,,,,0,"File:fifo.v:inst_dc_block_ram","SystemVerilogModule:inst_dc_block_ram"]]]]);

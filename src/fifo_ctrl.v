@@ -1,34 +1,75 @@
 //******************************************************************************
-/// @FILE    fifo_ctrl.v
-/// @AUTHOR  JAY CONVERTINO
-/// @DATE    2021.06.29
-/// @BRIEF   Control block for fifo operations, emulates xilinx fifo.
-///
-/// @LICENSE MIT
-///  Copyright 2021 Jay Convertino
-///
-///  Permission is hereby granted, free of charge, to any person obtaining a copy
-///  of this software and associated documentation files (the "Software"), to 
-///  deal in the Software without restriction, including without limitation the
-///  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-///  sell copies of the Software, and to permit persons to whom the Software is 
-///  furnished to do so, subject to the following conditions:
-///
-///  The above copyright notice and this permission notice shall be included in 
-///  all copies or substantial portions of the Software.
-///
-///  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-///  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-///  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-///  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-///  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-///  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-///  IN THE SOFTWARE.
+// file:    fifo_ctrl.v
+//
+// author:  JAY CONVERTINO
+//
+// date:    2021/06/29
+//
+// about:   Brief
+// Control block for fifo operations, emulates xilinx fifo.
+//
+// license: License MIT
+// Copyright 2021 Jay Convertino
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
 //******************************************************************************
 
 `timescale 1ns/100ps
 
-// FIFO entity
+/*
+ * Module: fifo_ctrl
+ *
+ * Control block for fifo operations, emulates xilinx fifo.
+ *
+ * Parameters:
+ *
+ *    FIFO_DEPTH    - Depth of the fifo, must be a power of two number(divisable aka 256 = 2^8). Any non-power of two will be rounded up to the next closest.
+ *    BYTE_WIDTH    - How many bytes wide the data in/out will be.
+ *    ADDR_WIDTH    - Width of the RAM address bus to write data to.
+ *    COUNT_WIDTH   - Data count output width in bits. Should be the same power of two as fifo depth(256 for fifo depth... this should be 8).
+ *    GREY_CODE     - RAM address uses grey code instead of linear addressing.
+ *    COUNT_DELAY   - Delay count by one clock cycle of the data count clock. Set this to 0 to disable (only disable if read/write/data_count are on the same clock domain!).
+ *    COUNT_ENA     - Enable the count output.
+ *    ACK_ENA       - Enable ack on write.
+ *    FWFT          - 1 for first word fall through mode. 0 for normal.
+ *
+ * Ports:
+ *
+ *    rd_clk            - Clock for read data
+ *    rd_rstn           - Negative edge reset for read.
+ *    rd_en             - Active high enable of read interface.
+ *    rd_addr           - Address to read data from in RAM.
+ *    rd_valid          - Active high output that the data is valid.
+ *    rd_mem_en         - Active high enable to read from RAM.
+ *    rd_empty          - Active high output when read is empty.
+ *    wr_clk            - Clock for write data
+ *    wr_rstn           - Negative edge reset for write
+ *    wr_en             - Active high enable of write interface.
+ *    wr_addr           - Address to write data to in RAM.
+ *    wr_ack            - Active high when enabled, that data write has been done.
+ *    wr_mem_en         - Active high enable to write to RAM.
+ *    wr_full           - Active high output that the FIFO is full.
+ *    data_count_clk    - Clock for data count
+ *    data_count_rstn   - Negative edge reset for data count.
+ *    data_count        - Output that indicates the amount of data in the FIFO.
+ */
 module fifo_ctrl #(
     parameter FIFO_DEPTH = 256,
     parameter BYTE_WIDTH = 1,
@@ -41,26 +82,23 @@ module fifo_ctrl #(
     parameter FWFT       = 0
   )
   (
-    // read interface
-    input rd_clk,
-    input rd_rstn,
-    input rd_en,
-    output [ADDR_WIDTH-1:0] rd_addr,
-    output rd_valid,
-    output rd_mem_en,
-    output rd_empty,
-    // write interface
-    input wr_clk,
-    input wr_rstn,
-    input wr_en,
-    output [ADDR_WIDTH-1:0] wr_addr,
-    output wr_ack,
-    output wr_mem_en,
-    output wr_full,
-    // data count interface
-    input data_count_clk,
-    input data_count_rstn,
-    output [COUNT_WIDTH:0] data_count
+    input                     rd_clk,
+    input                     rd_rstn,
+    input                     rd_en,
+    output  [ADDR_WIDTH-1:0]  rd_addr,
+    output                    rd_valid,
+    output                    rd_mem_en,
+    output                    rd_empty,
+    input                     wr_clk,
+    input                     wr_rstn,
+    input                     wr_en,
+    output  [ADDR_WIDTH-1:0]  wr_addr,
+    output                    wr_ack,
+    output                    wr_mem_en,
+    output                    wr_full,
+    input                     data_count_clk,
+    input                     data_count_rstn,
+    output  [COUNT_WIDTH:0]   data_count
   );
 
   //state machine

@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:fifo_pipe","fifo_pipe");NDSummary.OnSummaryLoaded("SystemVerilogModule:fifo_pipe",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[31,0,0,"fifo_pipe"]]);

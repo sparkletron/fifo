@@ -1,5 +1,8 @@
 # FIFO
 ### Emulates Xilinx FIFO FWFT and response
+
+![image](docs/manual/img/AFRL.png)
+
 ---
 
    author: Jay Convertino  
@@ -22,7 +25,13 @@
   - V1.1.0 - tcl constraints
   - V1.0.0 - initial release
 
-### Dependencies
+### DOCUMENTATION
+  For detailed usage information, please navigate to one of the following sources. They are the same, just in a different format.
+
+  - [fifo.pdf](docs/manual/fifo.pdf)
+  - [github page](https://johnathan-convertino-afrl.github.io/fifo/)
+
+### DEPENDENCIES
 #### Build
   - AFRL:utility:helper:1.0.0
   - AFRL:ram:dc_block_ram:1.0.0
@@ -32,8 +41,7 @@
   - AFRL:simulation:clock_stimulator
   - AFRL:utility:sim_helper
   
-### IP USAGE
-#### Parameters
+### PARAMETERS
 
 * FIFO_DEPTH : Depth of the fifo, must be a power of two number(divisable aka 256 = 2^8). Any non-power of two will be rounded up to the next closest.
 * COUNT_WIDTH: Data count output width in bits. Should be the same power of two as fifo depth(256 for fifo depth... this should be 8).
@@ -54,7 +62,7 @@
   * First Word Fall Through mode for read is optional.
 * fifo_pipe.v
   * Adds pipelining in case of timing issues.
-  * Asymetic pipeline Write/Read ability.
+  * Asymmetric pipeline Write/Read ability.
 * fifo.v
   * Wrapper that combines all the above components into a functional unit.
   
@@ -62,12 +70,12 @@
 
 * tb_fifo.v
   
-### fusesoc
+### FUSESOC
 
 * fusesoc_info.core created.
 * Simulation uses icarus to run data through the core.
 
-#### TARGETS
+#### Targets
 
 * RUN WITH: (fusesoc run --target=sim VENDER:CORE:NAME:VERSION)
   - default (for IP integration builds)
