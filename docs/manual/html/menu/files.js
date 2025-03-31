@@ -1,1 +1,1 @@
-﻿NDMenu.OnSectionLoaded("files.js",[[1,"fifo.v"],[1,"fifo_ctrl.v"],[1,"fifo_pipe.v"]]);
+﻿NDMenu.OnSectionLoaded("files.js",[[2,"fifo","File:",[[1,"fifo.v"],[1,"fifo_ctrl.v"],[1,"fifo_pipe.v"]]],[2,"fifo_tb","File2:",[[1,"tb_cocotb.py"],[1,"tb_cocotb.v"],[1,"tb_fifo.v"]]]]);

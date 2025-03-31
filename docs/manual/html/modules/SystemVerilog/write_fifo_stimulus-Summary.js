@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:write_fifo_stimulus","write_fifo_stimulus");NDSummary.OnSummaryLoaded("SystemVerilogModule:write_fifo_stimulus",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[70,0,0,"write_fifo_stimulus"]]);

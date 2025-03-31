@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("v",["File"],[["v",,[[,"fifo.v",,,0,"File:fifo.v:fifo.v"],[,"fifo_ctrl.v",,,0,"File:fifo_ctrl.v:fifo_ctrl.v"],[,"fifo_pipe.v",,,0,"File:fifo_pipe.v:fifo_pipe.v"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("v",["File"],[["v",,[[,"fifo.v",,,0,"File:fifo.v:fifo.v"],[,"fifo_ctrl.v",,,0,"File:fifo_ctrl.v:fifo_ctrl.v"],[,"fifo_pipe.v",,,0,"File:fifo_pipe.v:fifo_pipe.v"],[,"tb_cocotb.v",,,0,"File2:tb_cocotb.v:tb_cocotb.v"],[,"tb_fifo.v",,,0,"File2:tb_fifo.v:tb_fifo.v"]]]]);

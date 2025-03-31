@@ -15,6 +15,11 @@ filesets:
     files:
       - tb/tb_fifo.v : { file_type: verilogSource }
 
+  tb_cocotb:
+    files:
+      - tb/tb_cocotb.py : {file_type : user, copyto : .}
+      - tb/tb_cocotb.v : { file_type: verilogSource }
+
   dep:
     depend:
       - AFRL:utility:helper:1.0.0
@@ -75,12 +80,40 @@ targets:
       - OUT_FILE_NAME=out_8bit_count.bin
       - RAND_FULL
       - FIFO_DEPTH
+
+  sim_cocotb:
+    <<: *default
+    description: Cocotb unit tests
+    flow: sim
+    flow_options:
+      tool: icarus
+      cocotb_module: tb_cocotb
+      timescale: 1ns/1ns
+      vcs_options: [-timescale=1ns/1ns]
+    filesets_append: [tb_cocotb]
+    toplevel: tb_cocotb
+    parameters:
+      - FIFO_DEPTH
+      - BYTE_WIDTH
+      - FWFT
       
 parameters:
   RAND_FULL:
     datatype    : int
     default     : 0
     description : If set to anything other than 0, the full signal to the DUT will be randomized.
+    paramtype   : vlogparam
+
+  BYTE_WIDTH:
+    datatype    : int
+    default     : 8
+    description : Number of bytes for data path width.
+    paramtype   : vlogparam
+
+  FWFT:
+    datatype    : int
+    default     : 1
+    description : Turn on or off first word fall through for read (0 is off).
     paramtype   : vlogparam
 
   FIFO_DEPTH:

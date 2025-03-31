@@ -111,12 +111,28 @@ There are a few different simulations that can be run for this core.
 
 \subsection{iverilog}
 \par
-iverilog is used for simple test benches for quick verification, visually, of the core.
+All simulation targets that do NOT have cocotb in the name use a verilog test bench with verilog stimulus components. These all read in a file
+and then write a file that has been processed by the FIFO. Then the input and output file are compared with a MD5 sum to check that they
+match. If they do not match then the test has failed. All of these tests provide fst output files for viewing the waveform in the there
+target build folder.
 
 \subsection{cocotb}
 \par
-Future simulations will use cocotb. This feature is not yet implemented.
+To use the cocotb tests you must install the following python libraries.
+\begin{lstlisting}[language=bash]
+  $ pip install cocotb
+  $ pip install cocotbext-fifo
+\end{lstlisting}
 
+Then you must use the cocotb sim target. In this case it is sim\_cocotb. This target can be run with various bus and fifo parameters.
+\begin{lstlisting}[language=bash]
+  $ fusesoc run --target sim_cocotb AFRL:buffer:fifo:1.2.0 --BUS_WIDTH=8 --FIFO_DEPTH=32
+\end{lstlisting}
+
+The following is an example command to run through various parameters without typing them one by one.
+\begin{lstlisting}[language=bash]
+  $ for i in {1..32}; do sleep 5; export RY=$(($RANDOM%32+1)); fusesoc run --target sim_cocotb AFRL:buffer:axis_fifo:1.0.0 --BUS_WIDTH=$i --FIFO_DEPTH=$RY; echo "BUS WIDTH:" $i "FIFO DEPTH:" $RY; done
+\end{lstlisting}
 \newpage
 
 \section{Module Documentation} \label{Module Documentation}
@@ -128,6 +144,8 @@ There is a single async module for this core.
 \item \textbf{FIFO} FIFO will buffer data from input to output.\\
 \item \textbf{FIFO\_PIPE} FIFO\_PIPE will provide a pipeline for timing issues.\\
 \item \textbf{FIFO\_CONTROL} FIFO\_CONTROL emulates the Xilinx FIFO IP interface and its behavior.\\
+\item \textbf{FIFO\_COCOTB PYTHON} Cocotb python test bench.\\
+\item \textbf{FIFO\_COCOTB VERILOG} Cocotb verilog wrapper.\\
 \end{itemize}
-The next sections document the module in great detail.
+The next sections document the modules.
 

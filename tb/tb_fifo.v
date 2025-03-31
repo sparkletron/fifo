@@ -1,33 +1,53 @@
 //******************************************************************************
-/// @FILE    tb_fifo.v
-/// @AUTHOR  JAY CONVERTINO
-/// @DATE    2021.06.29
-/// @BRIEF   Test bench for fifo
-///
-/// @LICENSE MIT
-///  Copyright 2021 Jay Convertino
-///
-///  Permission is hereby granted, free of charge, to any person obtaining a copy
-///  of this software and associated documentation files (the "Software"), to 
-///  deal in the Software without restriction, including without limitation the
-///  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-///  sell copies of the Software, and to permit persons to whom the Software is 
-///  furnished to do so, subject to the following conditions:
-///
-///  The above copyright notice and this permission notice shall be included in 
-///  all copies or substantial portions of the Software.
-///
-///  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-///  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-///  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-///  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-///  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-///  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-///  IN THE SOFTWARE.
+// file:    tb_fifo.v
+//
+// author:  JAY CONVERTINO
+//
+// date:    2021/06/29
+//
+// about:   Brief
+// Test bench for fifo using fifo stim and clock stim.
+//
+// license: License MIT
+// Copyright 2021 Jay Convertino
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
 //******************************************************************************
 
 `timescale 1 ns/10 ps
 
+/*
+ * Module: tb_fifo
+ *
+ * Test bench for fifo. This will run a file through the system
+ * and write its output. These can then be compared to check for errors.
+ * If the files are identical, no errors. A FST file will be written.
+ *
+ * Parameters:
+ *
+ *   IN_FILE_NAME  - File name for input.
+ *   OUT_FILE_NAME - File name for output.
+ *   FIFO_DEPTH    - Number of transactions to buffer.
+ *   RAND_READY    - 0 = no random ready. 1 = randomize ready.
+ *
+ */
 module tb_fifo #(
   parameter IN_FILE_NAME = in.bin,
   parameter OUT_FILE_NAME = out.bin,
@@ -53,21 +73,31 @@ module tb_fifo #(
   wire                      tb_dut_empty;
   wire                      tb_dut_ready;
 
+  //Group: Instantiated Modules
+
+  /*
+   * Module: clk_stim
+   *
+   * Generate a 50/50 duty cycle set of clocks and reset.
+   */
   clk_stimulus #(
-    .CLOCKS(2), // # of clocks
-    .CLOCK_BASE(1000000), // clock time base mhz
-    .CLOCK_INC(1000), // clock time diff mhz
-    .RESETS(2), // # of resets
-    .RESET_BASE(2000), // time to stay in reset
-    .RESET_INC(100) // time diff for other resets
+    .CLOCKS(2),
+    .CLOCK_BASE(1000000),
+    .CLOCK_INC(1000),
+    .RESETS(2),
+    .RESET_BASE(2000),
+    .RESET_INC(100)
   ) clk_stim (
-    //clk out ... maybe a vector of clks with diff speeds.
     .clkv({tb_dut_clk, tb_stim_clk}),
-    //rstn out ... maybe a vector of rsts with different off times
     .rstnv({tb_dut_rstn, tb_stim_rstn}),
     .rstv()
   );
   
+  /*
+   * Module: write_fifo_stimulus
+   *
+   * Device under test WRITE stimulus module.
+   */
   write_fifo_stimulus #(
     .BYTE_WIDTH(BYTE_WIDTH),
     .FILE(IN_FILE_NAME)
@@ -81,7 +111,11 @@ module tb_fifo #(
     .eof(tb_stim_eof)
   );
 
-  // FIFO that emulates Xilinx FIFO.
+  /*
+   * Module: dut
+   *
+   * Device under test, fifo
+   */
   fifo #(
     .FIFO_DEPTH(FIFO_DEPTH),
     .BYTE_WIDTH(BYTE_WIDTH),
@@ -97,26 +131,28 @@ module tb_fifo #(
     .RAM_TYPE("block")
   ) dut
   (
-    // write interface
     .wr_clk(tb_stim_clk),
     .wr_rstn(tb_stim_rstn),
     .wr_en(tb_stim_valid),
     .wr_ack(),
     .wr_data(tb_stim_data),
     .wr_full(tb_stim_ready),
-    // read interface
     .rd_clk(tb_dut_clk),
     .rd_rstn(tb_dut_rstn),
     .rd_en(~tb_dut_ready),
     .rd_valid(tb_dut_valid),
     .rd_data(tb_dut_data),
     .rd_empty(tb_dut_empty),
-    // data count interface
     .data_count_clk(tb_stim_clk),
     .data_count_rstn(tb_stim_rstn),
     .data_count()
   );
   
+  /*
+   * Module: read_fifo_stimulus
+   *
+   * Device under test READ stimulus module.
+   */
   read_fifo_stimulus #(
     .BYTE_WIDTH(BYTE_WIDTH),
     .RAND_FULL(RAND_FULL),

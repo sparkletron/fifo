@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("wri",["Module"],[["write_fifo_stimulus",,[[,,,,0,"File2:tb_fifo.v:write_fifo_stimulus","SystemVerilogModule:write_fifo_stimulus"]]]]);

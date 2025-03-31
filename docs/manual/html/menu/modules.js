@@ -1,1 +1,1 @@
-﻿NDMenu.OnSectionLoaded("modules.js",[[1,"control"],[1,"fifo"],[1,"fifo_ctrl"],[1,"fifo_pipe"],[1,"inst_dc_block_ram"],[1,"pipe"]]);
+﻿NDMenu.OnSectionLoaded("modules.js",[[1,"clk_stim"],[1,"control"],[1,"dut"],[1,"fifo"],[1,"fifo_ctrl"],[1,"fifo_pipe"],[1,"inst_dc_block_ram"],[1,"pipe"],[1,"read_fifo_stimulus"],[1,"tb_cocotb"],[1,"tb_fifo"],[1,"write_fifo_stimulus"]]);

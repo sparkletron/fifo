@@ -1,17 +1,13 @@
 <!DOCTYPE HTML>
 
-<!--Converted with LaTeX2HTML 2021.2 (Released July 1, 2021) -->
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
 <HTML lang="en">
 <HEAD>
 <TITLE>iverilog</TITLE>
-<META NAME="description" CONTENT="iverilog">
-<META NAME="keywords" CONTENT="html">
-<META NAME="resource-type" CONTENT="document">
-<META NAME="distribution" CONTENT="global">
 
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
 <META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
-<META NAME="Generator" CONTENT="LaTeX2HTML v2021.2">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
 
 <LINK REL="STYLESHEET" HREF="html.css">
 
@@ -32,7 +28,7 @@
 <A
  HREF="fifo_node15.html">
 <IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
-<A ID="tex2html85"
+<A ID="tex2html91"
   HREF="fifo_node1.html">
 <IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
 <BR>
@@ -42,7 +38,7 @@
  HREF="fifo_node15.html">Simulation</A>
 <B> Previous:</B> <A
  HREF="fifo_node15.html">Simulation</A>
- &nbsp; <B>  <A ID="tex2html86"
+ &nbsp; <B>  <A ID="tex2html92"
   HREF="fifo_node1.html">Contents</A></B> 
 <BR>
 <BR></DIV>
@@ -53,7 +49,10 @@ iverilog</A>
 </H2>
 
 <P>
-iverilog is used for simple test benches for quick verification, visually, of the core.
+All simulation targets that do NOT have cocotb in the name use a verilog test bench with verilog stimulus components. These all read in a file
+and then write a file that has been processed by the FIFO. Then the input and output file are compared with a MD5 sum to check that they
+match. If they do not match then the test has failed. All of these tests provide fst output files for viewing the waveform in the there
+target build folder.
 
 <P>
 <BR><HR>
