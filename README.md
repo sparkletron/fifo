@@ -30,16 +30,6 @@
 
   - [fifo.pdf](docs/manual/fifo.pdf)
   - [github page](https://johnathan-convertino-afrl.github.io/fifo/)
-
-### DEPENDENCIES
-#### Build
-  - AFRL:utility:helper:1.0.0
-  - AFRL:ram:dc_block_ram:1.0.0
-  
-#### Simulation
-  - AFRL:simulation:fifo_stimulator
-  - AFRL:simulation:clock_stimulator
-  - AFRL:utility:sim_helper
   
 ### PARAMETERS
 
@@ -79,6 +69,7 @@
 
 * RUN WITH: (fusesoc run --target=sim VENDER:CORE:NAME:VERSION)
   - default (for IP integration builds)
+  - lint
   - sim
   - sim_rand_data
   - sim_rand_full_rand_data

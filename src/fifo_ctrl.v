@@ -201,7 +201,7 @@ module fifo_ctrl #(
   generate
 
   //fwft read generate block
-  if (FWFT > 0) begin
+  if (FWFT > 0) begin : gen_FWFT_ENABLED
     // Read data in a manner that waits for read enable before outputing data.
     always @(posedge rd_clk) begin
       if(rd_rstn == 1'b0) begin
@@ -259,10 +259,12 @@ module fifo_ctrl #(
               rd_ctrl_mem <= 1'b0;
             end
           end
+          default:
+            read_state <= idle;
         endcase
       end
     end
-  end else begin
+  end else begin : gen_FWFT_DISABLED
     // Read data in a manner that waits for read enable before outputing data.
     always @(posedge rd_clk) begin
       if(rd_rstn == 1'b0) begin
@@ -292,7 +294,7 @@ module fifo_ctrl #(
   end
   
   // Write data whenever write enable is set.
-  if (ACK_ENA > 0) begin
+  if (ACK_ENA > 0) begin : gen_ACK_ENABLED
     reg r_wr_ack;
     
     assign wr_ack = r_wr_ack;
@@ -309,24 +311,24 @@ module fifo_ctrl #(
         end
       end
     end
-  end else begin
+  end else begin : gen_ACK_DISABLED
     // Write data don't ack
     assign wr_ack = 1'b0;
   end
   
   // Provide a count of data in the fifo. 
-  if (COUNT_ENA > 0) begin
+  if (COUNT_ENA > 0) begin : gen_COUNT_ENABLED
 
-    if(COUNT_WIDTH+1 <= ADDR_WIDTH) begin
+    if(COUNT_WIDTH+1 <= ADDR_WIDTH) begin : gen_COUNT_WIDTH
       // data count get a slice of the resulting data count.
       assign data_count = r_data_count[COUNT_WIDTH:0];
-    end else begin
+    end else begin : gen_ADDR_WIDTH
       // data count get a slice of the resulting data count.
       assign data_count[COUNT_WIDTH:ADDR_WIDTH] = ((r_data_count != 0) ? 0 : {{(COUNT_WIDTH-ADDR_WIDTH){1'b0}}, r_fwft_count});
       assign data_count[ADDR_WIDTH-1:0] = r_data_count;
     end
 
-    if (COUNT_DELAY > 0) begin
+    if (COUNT_DELAY > 0) begin : gen_COUNT_DELAY_ENABLED
       always @(posedge data_count_clk) begin
         if(data_count_rstn == 1'b0) begin
           r_data_count   <= 0;
@@ -346,12 +348,12 @@ module fifo_ctrl #(
           end
         end
       end
-    end else begin
+    end else begin : gen_COUNT_DELAY_DISABLED
       always @(r_tail or r_head or r_fwft_count) begin
         r_data_count <= ((r_tail > r_head) ? (r_head - r_tail - FIFO_DEPTH + r_fwft_count) : (r_head - r_tail + r_fwft_count));
       end
     end
-  end else begin
+  end else begin : gen_COUNT_DISABLED
     assign data_count = 0;
   end
   endgenerate

@@ -115,20 +115,20 @@ module fifo_pipe #(
   // Read register arrays
   reg [RD_SYNC_DEPTH-1:0]  reg_rd_valid;
   reg [RD_SYNC_DEPTH-1:0]  reg_rd_empty;
-  reg [(BYTE_WIDTH*8)-1:0] reg_rd_data[RD_SYNC_DEPTH-1:0];
+  reg [(BYTE_WIDTH*8)-1:0] reg_rd_data[RD_SYNC_DEPTH];
   
   // Write register arrays
   reg [WR_SYNC_DEPTH-1:0]  reg_wr_ack;
   reg [WR_SYNC_DEPTH-1:0]  reg_wr_full;
-  reg [(BYTE_WIDTH*8)-1:0] reg_wr_data[WR_SYNC_DEPTH-1:0];
+  reg [(BYTE_WIDTH*8)-1:0] reg_wr_data[WR_SYNC_DEPTH];
   
   // Data count register
-  reg [COUNT_WIDTH:0] reg_data_count[DC_SYNC_DEPTH-1:0];
+  reg [COUNT_WIDTH:0] reg_data_count[DC_SYNC_DEPTH];
 
   //generate the correct block
   generate
   // No sync depth defined, just send read through.
-  if (RD_SYNC_DEPTH == 0) begin
+  if (RD_SYNC_DEPTH == 0) begin : gen_RD_PIPE_DISABLED
     assign r_rd_en     = rd_en;
     assign r_rd_valid  = rd_valid;
     assign r_rd_data   = ((rd_valid != 1'b1) && (DATA_ZERO > 0) ? 0 : rd_data);
@@ -136,7 +136,7 @@ module fifo_pipe #(
   end
   
   // No sync depth defined, just send write through.
-  if (WR_SYNC_DEPTH == 0) begin
+  if (WR_SYNC_DEPTH == 0) begin : gen_WR_PIPE_DISABLED
     assign r_wr_en     = wr_en;
     assign r_wr_ack    = wr_ack;
     assign r_wr_data   = wr_data;
@@ -144,12 +144,12 @@ module fifo_pipe #(
   end
   
   // No sync depth defined, just send data count through
-  if (DC_SYNC_DEPTH == 0) begin
+  if (DC_SYNC_DEPTH == 0) begin : gen_DC_PIPE_DISABLED
     assign r_data_count = data_count;
   end
   
   // Sync depth defined, create register pipe for read.
-  if (RD_SYNC_DEPTH > 0) begin
+  if (RD_SYNC_DEPTH > 0) begin : gen_RD_PIPE_ENABLED
     assign r_rd_en     = rd_en;
     assign r_rd_valid  = reg_rd_valid[RD_SYNC_DEPTH-1];
     assign r_rd_data   = ((rd_valid != 1'b1) && (DATA_ZERO > 0) ? 0 : reg_rd_data[RD_SYNC_DEPTH-1]);
@@ -179,7 +179,7 @@ module fifo_pipe #(
   end
   
   // Sync depth defined, create register pipe for write.
-  if (WR_SYNC_DEPTH > 0) begin
+  if (WR_SYNC_DEPTH > 0) begin : gen_WR_PIPE_ENABLED
     assign r_wr_en   = wr_en;
     assign r_wr_ack  = reg_wr_ack[WR_SYNC_DEPTH-1];
     assign r_wr_data = reg_wr_data[WR_SYNC_DEPTH-1];
@@ -209,7 +209,7 @@ module fifo_pipe #(
   end
   
   // Sync depth defined, create register pipe for data count.
-  if (DC_SYNC_DEPTH > 0) begin
+  if (DC_SYNC_DEPTH > 0) begin : gen_DC_PIPE_ENABLED
     assign r_data_count = reg_data_count[DC_SYNC_DEPTH-1];
     
     always @(posedge data_count_clk) begin
