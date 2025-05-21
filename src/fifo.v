@@ -6,7 +6,8 @@
 // date:    2021/06/29
 //
 // about:   Brief
-// Wrapper to tie together fifo_ctrl, fifo_mem, and fifo_pipe.
+// Wrapper to tie together fifo_ctrl, fifo_mem, and fifo_pipe. Emulates Xilinx
+// FIFO core.
 //
 // license: License MIT
 // Copyright 2021 Jay Convertino
