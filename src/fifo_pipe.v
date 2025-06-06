@@ -115,15 +115,15 @@ module fifo_pipe #(
   // Read register arrays
   reg [RD_SYNC_DEPTH-1:0]  reg_rd_valid;
   reg [RD_SYNC_DEPTH-1:0]  reg_rd_empty;
-  reg [(BYTE_WIDTH*8)-1:0] reg_rd_data[RD_SYNC_DEPTH];
+  reg [(BYTE_WIDTH*8)-1:0] reg_rd_data[RD_SYNC_DEPTH-1:0];
   
   // Write register arrays
   reg [WR_SYNC_DEPTH-1:0]  reg_wr_ack;
   reg [WR_SYNC_DEPTH-1:0]  reg_wr_full;
-  reg [(BYTE_WIDTH*8)-1:0] reg_wr_data[WR_SYNC_DEPTH];
+  reg [(BYTE_WIDTH*8)-1:0] reg_wr_data[WR_SYNC_DEPTH-1:0];
   
   // Data count register
-  reg [COUNT_WIDTH:0] reg_data_count[DC_SYNC_DEPTH];
+  reg [COUNT_WIDTH:0] reg_data_count[DC_SYNC_DEPTH-1:0];
 
   //generate the correct block
   generate
