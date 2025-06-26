@@ -1,5 +1,6 @@
 # FIFO
 ### Emulates Xilinx FIFO FWFT and response
+---
 
 ![image](docs/manual/img/AFRL.png)
 
