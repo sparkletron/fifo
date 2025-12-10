@@ -109,19 +109,23 @@ module fifo_pipe #(
     output  [COUNT_WIDTH:0]       r_data_count
   );
   
-  //for loop unroll index
+  // Read arrays
+  wire [RD_SYNC_DEPTH-1:0]  w_rd_empty;
+  wire [RD_SYNC_DEPTH-1:0]  w_rd_valid;
+  wire [RD_SYNC_DEPTH-1:0]  w_rd_en;
+  wire [(BYTE_WIDTH*8)-1:0] w_rd_data[RD_SYNC_DEPTH-1:0];
+  
+  // Write arrays
+  wire [WR_SYNC_DEPTH-1:0]  w_wr_ready;
+  wire [WR_SYNC_DEPTH-1:0]  w_wr_en;
+  wire [WR_SYNC_DEPTH-1:0]  w_wr_ack;
+  wire [(BYTE_WIDTH*8)-1:0] w_wr_data[WR_SYNC_DEPTH-1:0];
+  wire w_wr_ready_o;
+  
+  //for loop unroll gen_index
+  genvar gen_index;
+  
   integer index;
-  
-  // Read register arrays
-  reg [RD_SYNC_DEPTH-1:0]  reg_rd_valid;
-  reg [RD_SYNC_DEPTH-1:0]  reg_rd_empty;
-  reg [(BYTE_WIDTH*8)-1:0] reg_rd_data[RD_SYNC_DEPTH-1:0];
-  
-  // Write register arrays
-  reg [WR_SYNC_DEPTH-1:0]  reg_wr_ack;
-  reg [WR_SYNC_DEPTH-1:0]  reg_wr_full;
-  reg [(BYTE_WIDTH*8)-1:0] reg_wr_data[WR_SYNC_DEPTH-1:0];
-  
   // Data count register
   reg [COUNT_WIDTH:0] reg_data_count[DC_SYNC_DEPTH-1:0];
 
@@ -148,62 +152,108 @@ module fifo_pipe #(
     assign r_data_count = data_count;
   end
   
-  // Sync depth defined, create register pipe for read.
+  // Sync depth defined, create holdbuffer pipe for read.
   if (RD_SYNC_DEPTH > 0) begin : gen_RD_PIPE_ENABLED
-    assign r_rd_en     = rd_en;
-    assign r_rd_valid  = reg_rd_valid[RD_SYNC_DEPTH-1];
-    assign r_rd_data   = ((rd_valid != 1'b1) && (DATA_ZERO > 0) ? 0 : reg_rd_data[RD_SYNC_DEPTH-1]);
-    assign r_rd_empty  = reg_rd_empty[RD_SYNC_DEPTH-1];
+    assign r_rd_valid   = w_rd_valid[RD_SYNC_DEPTH-1];
+    assign r_rd_data    = w_rd_data[RD_SYNC_DEPTH-1];
+    assign r_rd_empty   = w_rd_empty[RD_SYNC_DEPTH-1] | ~rd_rstn;
+    assign w_rd_en[RD_SYNC_DEPTH-1] = rd_en;
     
-    always @(posedge rd_clk) begin
-      if(rd_rstn == 1'b0) begin
-        reg_rd_valid <= 0;
-        reg_rd_empty <= 0;
-        
-        for(index = 0; index < RD_SYNC_DEPTH; index = index + 1) begin
-          reg_rd_data[index] <= 0;
-        end
+    for(gen_index = 0; gen_index < RD_SYNC_DEPTH; gen_index = gen_index + 1) begin
+      if(gen_index == 0)
+      begin
+        holdbuffer #(
+          .BUS_WIDTH(BYTE_WIDTH*8)
+        ) inst_rd_in_holdbuffer (
+          .clk(rd_clk),
+          .rstn(rd_rstn),
+          .timeout(1'b0),
+          .enable(1'b1),
+          .s_data(rd_data),
+          .s_data_last(rd_empty),
+          .s_data_valid(rd_valid),
+          .s_data_ready(r_rd_en),
+          .s_data_ack(),
+          .m_data(w_rd_data[gen_index]),
+          .m_data_last(w_rd_empty[gen_index]),
+          .m_data_valid(w_rd_valid[gen_index]),
+          .m_data_ready(w_rd_en[gen_index]),
+          .m_data_ack(1'b0)
+        );
       end else begin
-        reg_rd_valid[0] <= rd_valid;
-        reg_rd_data[0]  <= rd_data;
-        reg_rd_empty[0] <= rd_empty;
-        
-        //synth eliminates null vectors
-        for(index = 0; index < RD_SYNC_DEPTH; index = index + 1) begin
-          reg_rd_valid[index] <= reg_rd_valid[index-1];
-          reg_rd_data[index]  <= reg_rd_data[index-1];
-          reg_rd_empty[index] <= reg_rd_empty[index-1];
-        end
+        holdbuffer #(
+          .BUS_WIDTH(BYTE_WIDTH*8)
+        ) inst_rd_holdbuffer (
+          .clk(rd_clk),
+          .rstn(rd_rstn),
+          .timeout(1'b0),
+          .enable(1'b1),
+          .s_data(w_rd_data[gen_index-1]),
+          .s_data_last(w_rd_empty[gen_index-1]),
+          .s_data_valid(w_rd_valid[gen_index-1]),
+          .s_data_ready(w_rd_en[gen_index-1]),
+          .s_data_ack(),
+          .m_data(w_rd_data[gen_index]),
+          .m_data_last(w_rd_empty[gen_index]),
+          .m_data_valid(w_rd_valid[gen_index]),
+          .m_data_ready(w_rd_en[gen_index]),
+          .m_data_ack(1'b0)
+        );
       end
     end
   end
   
-  // Sync depth defined, create register pipe for write.
+  // Sync depth defined, create holdbuffer pipe for write.
   if (WR_SYNC_DEPTH > 0) begin : gen_WR_PIPE_ENABLED
-    assign r_wr_en   = wr_en;
-    assign r_wr_ack  = reg_wr_ack[WR_SYNC_DEPTH-1];
-    assign r_wr_data = reg_wr_data[WR_SYNC_DEPTH-1];
-    assign r_wr_full = reg_wr_full[WR_SYNC_DEPTH-1];
+    assign r_wr_en   = w_wr_en[WR_SYNC_DEPTH-1];
+    assign r_wr_data = w_wr_data[WR_SYNC_DEPTH-1];
+    
+    assign r_wr_full = ~w_wr_ready_o & wr_rstn;
+    assign w_wr_ready[WR_SYNC_DEPTH-1]  = ~wr_full;
+    assign w_wr_ack[WR_SYNC_DEPTH-1]    = wr_ack;
   
-    always @(posedge wr_clk) begin
-      if(wr_rstn == 1'b0) begin
-        reg_wr_ack  <= 0;
-        reg_wr_full <= 0;
-        
-        for(index = 0; index < WR_SYNC_DEPTH; index = index + 1) begin
-          reg_wr_data[index] <= 0;
-        end
+    for(gen_index = 0; gen_index < WR_SYNC_DEPTH; gen_index = gen_index + 1) begin
+      if(gen_index == 0)
+      begin
+        holdbuffer #(
+          .BUS_WIDTH(BYTE_WIDTH*8),
+          .ACK_ENABLE(1)
+        ) inst_wr_in_holdbuffer (
+          .clk(wr_clk),
+          .rstn(wr_rstn),
+          .timeout(1'b0),
+          .enable(1'b1),
+          .s_data(wr_data),
+          .s_data_last(1'b0),
+          .s_data_valid(wr_en),
+          .s_data_ready(w_wr_ready_o),
+          .s_data_ack(r_wr_ack),
+          .m_data(w_wr_data[gen_index]),
+          .m_data_last(),
+          .m_data_valid(w_wr_en[gen_index]),
+          .m_data_ready(w_wr_ready[gen_index]),
+          .m_data_ack(w_wr_ack[gen_index])
+        );
       end else begin
-        reg_wr_ack[0]   <= wr_ack;
-        reg_wr_data[0]  <= wr_data;
-        reg_wr_full[0]  <= wr_full;
-        
-        //synth eliminates null vectors
-        for(index = 0; index < WR_SYNC_DEPTH; index = index + 1) begin
-          reg_wr_ack[index] <= reg_wr_ack[index-1];
-          reg_wr_data[index]  <= reg_wr_data[index-1];
-          reg_wr_full[index] <= reg_wr_full[index-1];
-        end
+        holdbuffer #(
+          .BUS_WIDTH(BYTE_WIDTH*8),
+          .ACK_ENABLE(1)
+        ) inst_wr_holdbuffer (
+          .clk(wr_clk),
+          .rstn(wr_rstn),
+          .timeout(1'b0),
+          .enable(1'b1),
+          .s_data(w_wr_data[gen_index-1]),
+          .s_data_last(1'b0),
+          .s_data_valid(w_wr_en[gen_index-1]),
+          .s_data_ready(w_wr_ready[gen_index-1]),
+          .s_data_ack(w_wr_ack[gen_index-1]),
+          .m_data(w_wr_data[gen_index]),
+          .m_data_last(),
+          .m_data_valid(w_wr_en[gen_index]),
+          .m_data_ready(w_wr_ready[gen_index]),
+          .m_data_ack(w_wr_ack[gen_index])
+        );
       end
     end
   end
@@ -214,13 +264,13 @@ module fifo_pipe #(
     
     always @(posedge data_count_clk) begin
       if(data_count_rstn == 1'b0) begin
-        for(index = 0; index < WR_SYNC_DEPTH; index = index + 1) begin
+        for(index = 0; index < DC_SYNC_DEPTH; index = index + 1) begin
           reg_data_count[index] <= 0;
         end
       end else begin
         reg_data_count[0] <= data_count;
         
-        for(index = 0; index < WR_SYNC_DEPTH; index = index + 1) begin
+        for(index = 0; index < DC_SYNC_DEPTH; index = gen_index + 1) begin
           reg_data_count[index] <= reg_data_count[index-1];
         end
       end

@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:inst_dc_block_ram","inst_dc_block_ram");NDSummary.OnSummaryLoaded("SystemVerilogModule:inst_dc_block_ram",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[22,0,0,"inst_dc_block_ram"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:inst_dc_block_ram","inst_dc_block_ram");NDSummary.OnSummaryLoaded("SystemVerilogModule:inst_dc_block_ram",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[33,0,0,"inst_dc_block_ram"]]);

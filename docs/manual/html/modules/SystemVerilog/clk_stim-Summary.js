@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:clk_stim","clk_stim");NDSummary.OnSummaryLoaded("SystemVerilogModule:clk_stim",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[69,0,0,"clk_stim"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:clk_stim","clk_stim");NDSummary.OnSummaryLoaded("SystemVerilogModule:clk_stim",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[53,0,0,"clk_stim"]]);

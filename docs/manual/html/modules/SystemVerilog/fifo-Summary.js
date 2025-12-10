@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:fifo","fifo");NDSummary.OnSummaryLoaded("SystemVerilogModule:fifo",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[18,0,0,"fifo"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:fifo","fifo");NDSummary.OnSummaryLoaded("SystemVerilogModule:fifo",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[29,0,0,"fifo"]]);
